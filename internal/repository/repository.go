@@ -34,6 +34,7 @@ type Repository struct {
 	Cache   *cache.Cache
 
 	noAutoIndexUpdate bool
+	minPackSize       uint
 
 	treePM *packerManager
 	dataPM *packerManager
@@ -55,6 +56,16 @@ func New(be restic.Backend) *Repository {
 // indexes once these are full
 func (r *Repository) DisableAutoIndexUpdate() {
 	r.noAutoIndexUpdate = true
+}
+
+// SetMinPackSize sets the minimum pack size.
+func (r *Repository) SetMinPackSize(packsize uint) {
+	r.minPackSize = packsize
+}
+
+// MinPackSize returns the configured minimum pack size.
+func (r *Repository) MinPackSize() uint {
+	return r.minPackSize
 }
 
 // Config returns the repository configuration.
@@ -277,7 +288,7 @@ func (r *Repository) SaveAndEncrypt(ctx context.Context, t restic.BlobType, data
 	}
 
 	// if the pack is not full enough, put back to the list
-	if packer.Size() < minPackSize {
+	if packer.Size() < r.minPackSize {
 		debug.Log("pack is not full enough (%d bytes)", packer.Size())
 		pm.insertPacker(packer)
 		return nil

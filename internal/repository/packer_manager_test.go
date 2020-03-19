@@ -24,6 +24,7 @@ func randomID(rd io.Reader) restic.ID {
 	return id
 }
 
+
 const maxBlobSize = 1 << 20
 
 func min(a, b int) int {
@@ -79,7 +80,7 @@ func fillPacks(t testing.TB, rnd *rand.Rand, be Saver, pm *packerManager, buf []
 		}
 		bytes += l
 
-		if packer.Size() < minPackSize {
+		if packer.Size() < defaultMinPackSize {
 			pm.insertPacker(packer)
 			continue
 		}
