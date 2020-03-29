@@ -54,6 +54,7 @@ Usage help is available:
           --key-hint key               key ID of key to try decrypting first (default: $RESTIC_KEY_HINT)
           --limit-download int         limits downloads to a maximum rate in KiB/s. (default: unlimited)
           --limit-upload int           limits uploads to a maximum rate in KiB/s. (default: unlimited)
+          --min-packsize uint          set min pack size in MiB. (default: $RESTIC_MIN_PACKSIZE or 4)
           --no-cache                   do not use a local cache
           --no-lock                    do not lock the repository, this allows some operations on read-only repositories
       -o, --option key=value           set extended option (key=value, can be specified multiple times)
@@ -99,6 +100,7 @@ command:
           --files-from file                        read the files to backup from file (can be combined with file args; can be specified multiple times)
           --files-from-raw file                    read the files to backup from file (can be combined with file args; can be specified multiple times)
           --files-from-verbatim file               read the files to backup from file (can be combined with file args; can be specified multiple times)
+          --file-read-concurrency uint             set concurrency on file reads. (default: $RESTIC_FILE_READ_CONCURRENCY or 2)
       -f, --force                                  force re-reading the target files/directories (overrides the "parent" flag)
       -h, --help                                   help for backup
       -H, --host hostname                          set the hostname for the snapshot manually. To prevent an expensive rescan use the "parent" flag
@@ -107,6 +109,7 @@ command:
           --ignore-inode                           ignore inode number changes when checking for modified files
       -x, --one-file-system                        exclude other file systems
           --parent snapshot                        use this parent snapshot (default: last snapshot in the repo that has the same target files/directories)
+          --save-blob-concurrency uint             set the archiver concurrency.  Default: number of available CPUs
           --stdin                                  read backup from stdin
           --stdin-filename filename                filename to use when reading from stdin (default "stdin")
           --tag tags                               add tags for the new snapshot in the format `tag[,tag,...]` (can be specified multiple times) (default [])
@@ -122,6 +125,7 @@ command:
           --key-hint key               key ID of key to try decrypting first (default: $RESTIC_KEY_HINT)
           --limit-download int         limits downloads to a maximum rate in KiB/s. (default: unlimited)
           --limit-upload int           limits uploads to a maximum rate in KiB/s. (default: unlimited)
+          --min-packsize uint          set min pack size in MiB. (default: $RESTIC_MIN_PACKSIZE or 4)
           --no-cache                   do not use a local cache
           --no-lock                    do not lock the repository, this allows some operations on read-only repositories
       -o, --option key=value           set extended option (key=value, can be specified multiple times)
@@ -428,3 +432,4 @@ time it is used, so by looking at the timestamps of the sub directories of the
 cache directory it can decide which sub directories are old and probably not
 needed any more. You can either remove these directories manually, or run a
 restic command with the ``--cleanup-cache`` flag.
+
