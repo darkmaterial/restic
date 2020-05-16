@@ -181,3 +181,12 @@ temporarily disable your antivirus software to find out if it is the cause for
 your performance problems. If you are certain that the antivirus software is
 the cause for this and you want to gain maximum performance, you have to add
 the restic binary to an exclusions list within the antivirus software.
+
+How do I choose a strong password?
+----------------------------------
+
+Any password close to 20-30 characters should be  enough.  However,length
+is not the only component for strong passwords.A strong password includes
+Alphabetical, Numerical and Special characters. For example, 
+``R3s7!cIsTh3B3s7B@ckupS0ftw@r3!`` would be a very strong password, if not for being in
+this documentation.
