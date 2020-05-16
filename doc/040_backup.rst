@@ -40,6 +40,10 @@ As you can see, restic created a backup of the directory and was pretty
 fast! The specific snapshot just created is identified by a sequence of
 hexadecimal characters, ``40dc1520`` in this case.
 
+.. note:: When restic encounters an error during backup (e.g unreadable file, permission
+    error, etc.) restic informs the user and continues.  The general rule is to inform
+    the user and continue where possible.
+
 You can see that restic tells us it processed 1.720 GiB of data, this is the
 size of the files and directories in ``~/work`` on the local file system. It
 also tells us that only 1.200 GiB was added to the repository. This means that
