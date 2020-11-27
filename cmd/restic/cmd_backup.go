@@ -105,7 +105,7 @@ var ErrInvalidSourceData = errors.New("failed to read all source data during bac
 func init() {
 	//set FileReadConcurrency to 2 if not set in env
 	fileReadConcurrency, err := strconv.Atoi(os.Getenv("RESTIC_FILE_READ_CONCURRENCY"))
-	if err != nil {
+	if err != nil || fileReadConcurrency < 1 {
 		fileReadConcurrency = 2
 	}
 	//set SaveBlobConcurrency to number of procs if not set in env
@@ -152,8 +152,8 @@ func init() {
 
 	if backupOptions.FileReadConcurrency == 0 {
 		// casting a negative int to uint has deterministic results based on 2s completement, so we should check the int as well as the uint.
-		if fileReadConcurrency < 1 || backupOptions.FileReadConcurrency < 1 {
-			fmt.Fprintf(os.Stderr, "File Read Concurrency must be a positive, nonzero integer.  Defaulting to 2.")
+		if fileReadConcurrency < 1 && backupOptions.FileReadConcurrency < 1 {
+			fmt.Fprintf(os.Stderr, "File Read Concurrency must be a positive, nonzero integer.  Defaulting to 2.\n")
 			backupOptions.FileReadConcurrency = 2
 		} else {
 			backupOptions.FileReadConcurrency = uint(fileReadConcurrency)
