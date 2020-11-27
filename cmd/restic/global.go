@@ -131,12 +131,17 @@ func init() {
 	//setting default to 0 for these then plugging default values later fixes text output for (default: )
 	if globalOptions.MinPackSize == 0 {
 		globalOptions.MinPackSize = uint(minPackSize)
+		// casting a negative int to uint has deterministic results based on 2s completement, so we should check the int as well as the uint.
+		if minPackSize < 1 {
+			fmt.Fprintf(os.Stderr, "min pack size must be a positive, nonzero integer. Defaulting to 4")
+			globalOptions.MinPackSize = 4
+		}
 	}
 
-	// casting a negative int to uint has deterministic results based on 2s completement, so we should check the int as well as the uint.
-	if minPackSize < 1 || globalOptions.MinPackSize < 1 {
-		fmt.Fprintf(os.Stderr, "min pack size must be a positive, nonzero integer. Defaulting to 4")
-		globalOptions.MinPackSize = 4
+	if globalOptions.MinPackSize > 1023 {
+		// Cheap upper limit, with a warning attached.  Hopefully we can dynamically set eagerEntries to fix this problem.
+		fmt.Fprintf(os.Stderr, "Pack sizes of 1024M or larger can cause issues when rebuilding indexes.  Setting pack size to 1023.\n")
+		globalOptions.MinPackSize = 1023
 	}
 
 	restoreTerminal()

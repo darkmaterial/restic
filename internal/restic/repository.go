@@ -50,6 +50,7 @@ type Repository interface {
 
 	LoadBlob(context.Context, BlobType, ID, []byte) ([]byte, error)
 	SaveBlob(context.Context, BlobType, []byte, ID, bool) (ID, bool, error)
+	MinPackSize() uint
 
 	LoadTree(context.Context, ID) (*Tree, error)
 	SaveTree(context.Context, *Tree) (ID, error)

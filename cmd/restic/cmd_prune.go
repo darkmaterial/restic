@@ -47,6 +47,7 @@ type PruneOptions struct {
 	MaxRepackBytes uint64
 
 	RepackCachableOnly bool
+	RepackSmall        bool
 }
 
 var pruneOptions PruneOptions
@@ -63,6 +64,7 @@ func addPruneOptions(c *cobra.Command) {
 	f.StringVar(&pruneOptions.MaxUnused, "max-unused", "5%", "tolerate given `limit` of unused data (absolute value in bytes with suffixes k/K, m/M, g/G, t/T, a value in % or the word 'unlimited')")
 	f.StringVar(&pruneOptions.MaxRepackSize, "max-repack-size", "", "maximum `size` to repack (allowed suffixes: k/K, m/M, g/G, t/T)")
 	f.BoolVar(&pruneOptions.RepackCachableOnly, "repack-cacheable-only", false, "only repack packs which are cacheable")
+	f.BoolVar(&pruneOptions.RepackSmall, "repack-small", false, "also repack small packs")
 }
 
 func verifyPruneOptions(opts *PruneOptions) error {
@@ -351,7 +353,7 @@ func prune(opts PruneOptions, gopts GlobalOptions, repo restic.Repository, usedB
 			// if this is a data pack and --repack-cacheable-only is set => keep pack!
 			keep(p)
 
-		case p.unusedBlobs == 0 && p.duplicateBlobs == 0 && p.tpe != restic.InvalidBlob:
+		case p.unusedBlobs == 0 && p.duplicateBlobs == 0 && p.tpe != restic.InvalidBlob && (!opts.RepackSmall || packSize >= int64(repo.MinPackSize())):
 			// All blobs in pack are used and not duplicates/mixed => keep pack!
 			keep(p)
 
@@ -408,6 +410,10 @@ func prune(opts PruneOptions, gopts GlobalOptions, repo restic.Repository, usedB
 		pi := repackCandidates[i].packInfo
 		pj := repackCandidates[j].packInfo
 		switch {
+		case opts.RepackSmall && pi.unusedSize+pi.usedSize < uint64(repo.MinPackSize()) && pj.unusedSize+pj.usedSize >= uint64(repo.MinPackSize()):
+			return true
+		case opts.RepackSmall && pj.unusedSize+pj.usedSize < uint64(repo.MinPackSize()) && pi.unusedSize+pi.usedSize >= uint64(repo.MinPackSize()):
+			return false
 		case pi.duplicateBlobs > 0 && pj.duplicateBlobs == 0:
 			return true
 		case pj.duplicateBlobs > 0 && pi.duplicateBlobs == 0:
