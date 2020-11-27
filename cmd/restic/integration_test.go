@@ -1431,7 +1431,7 @@ func TestPrune(t *testing.T) {
 		testPrune(t, opts, checkOpts)
 	})
 	t.Run("Small", func(t *testing.T) {
-		opts := PruneOptions{MaxUnused: "100%", RepackSmall: true}
+		opts := PruneOptions{MaxUnused: "99%", RepackSmall: true}
 		checkOpts := CheckOptions{ReadData: true, CheckUnused: true}
 		testPrune(t, opts, checkOpts)
 	})
