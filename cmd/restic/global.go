@@ -102,10 +102,11 @@ func init() {
 		return nil
 	})
 
-	//set MinPackSize to 4 if not set in env
 	minPackSize, err := strconv.Atoi(os.Getenv("RESTIC_MIN_PACKSIZE"))
 	if err != nil {
-		minPackSize = 4
+		if os.Getenv("RESTIC_MIN_PACKSIZE") != "" {
+			Warnf("Failed to parse RESTIC_MIN_PACKSIZE, %v\n", err)
+		}
 	}
 
 	f := cmdRoot.PersistentFlags()
@@ -125,26 +126,20 @@ func init() {
 	f.BoolVar(&globalOptions.CleanupCache, "cleanup-cache", false, "auto remove old cache directories")
 	f.IntVar(&globalOptions.LimitUploadKb, "limit-upload", 0, "limits uploads to a maximum rate in KiB/s. (default: unlimited)")
 	f.IntVar(&globalOptions.LimitDownloadKb, "limit-download", 0, "limits downloads to a maximum rate in KiB/s. (default: unlimited)")
-	f.UintVar(&globalOptions.MinPackSize, "min-packsize", 0, "set min pack size in MiB. (default: $RESTIC_MIN_PACKSIZE or 4)")
+	f.UintVar(&globalOptions.MinPackSize, "min-packsize", unsignInt(minPackSize), "set min pack size in MiB. (default: $RESTIC_MIN_PACKSIZE or 4)")
 	f.StringSliceVarP(&globalOptions.Options, "option", "o", []string{}, "set extended option (`key=value`, can be specified multiple times)")
 
-	//setting default to 0 for these then plugging default values later fixes text output for (default: )
-	if globalOptions.MinPackSize == 0 {
-		globalOptions.MinPackSize = uint(minPackSize)
-		// casting a negative int to uint has deterministic results based on 2s completement, so we should check the int as well as the uint.
-		if minPackSize < 1 {
-			fmt.Fprintf(os.Stderr, "min pack size must be a positive, nonzero integer. Defaulting to 4")
-			globalOptions.MinPackSize = 4
-		}
-	}
-
-	if globalOptions.MinPackSize > 1023 {
-		// Cheap upper limit, with a warning attached.  Hopefully we can dynamically set eagerEntries to fix this problem.
-		fmt.Fprintf(os.Stderr, "Pack sizes of 1024M or larger can cause issues when rebuilding indexes.  Setting pack size to 1023.\n")
-		globalOptions.MinPackSize = 1023
-	}
-
 	restoreTerminal()
+}
+
+// unsignInt is to avoid the 2s completement issue where you can get unintended
+// results when casting a negative int to uint.
+func unsignInt(i int) uint {
+	// ugly, nasty bounds check.
+	if i < 0 {
+		return 0
+	}
+	return uint(i)
 }
 
 // checkErrno returns nil when err is set to syscall.Errno(0), since this is no

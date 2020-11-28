@@ -61,6 +61,12 @@ directories in an encrypted repository stored on different backends.
 		}
 		globalOptions.password = pwd
 
+		if globalOptions.MinPackSize > 1023 {
+			// Cheap upper limit, with a warning attached.  Hopefully we can dynamically set eagerEntries to fix this problem.
+			fmt.Fprintf(os.Stderr, "Pack Size: %v\n", globalOptions.MinPackSize)
+			fmt.Fprintf(os.Stderr, "Pack sizes of 1024M or larger can cause issues when rebuilding indexes.  Setting pack size to 1023.\n")
+			globalOptions.MinPackSize = 1023
+		}
 		// run the debug functions for all subcommands (if build tag "debug" is
 		// enabled)
 		if err := runDebug(); err != nil {
