@@ -133,7 +133,7 @@ func init() {
 	f.UintVar(&backupOptions.FileReadConcurrency, "file-read-concurrency", unsignInt(fileReadConcurrency), "set concurrency on file reads. (default: $RESTIC_FILE_READ_CONCURRENCY or 2)")
 	f.StringVarP(&backupOptions.Host, "host", "H", "", "set the `hostname` for the snapshot manually. To prevent an expensive rescan use the \"parent\" flag")
 	f.StringVar(&backupOptions.Host, "hostname", "", "set the `hostname` for the snapshot manually")
-	err := f.MarkDeprecated("hostname", "use --host")
+	err = f.MarkDeprecated("hostname", "use --host")
 	if err != nil {
 		// MarkDeprecated only returns an error when the flag could not be found
 		panic(err)
